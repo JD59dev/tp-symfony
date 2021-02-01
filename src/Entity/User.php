@@ -6,6 +6,7 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -38,11 +39,12 @@ class User implements UserInterface
     private $password;
 
     /**
-     * @ORM\OneToMany(targetEntity=Product::class, mappedBy="owner", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=Product::class, mappedBy="buyer", orphanRemoval=true)
      */
     private $products;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->products = new ArrayCollection();
     }
 
@@ -62,8 +64,6 @@ class User implements UserInterface
 
         return $this;
     }
-
-
 
     /**
      * @see UserInterface
@@ -100,5 +100,52 @@ class User implements UserInterface
      */
     public function getProducts(): Collection {
         return $this->Products;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function getSalt()
+    {
+        // not needed when using the "bcrypt" algorithm in security.yaml
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function eraseCredentials()
+    {
+        // If you store any temporary, sensitive data on the user, clear it here
+        // $this->plainPassword = null;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function getUsername(): string
+    {
+        return (string) $this->email;
+    }
+
+    public function addProduct(Product $product): self
+    {
+        if (!$this->products->contains($product)) {
+            $this->products[] = $product;
+            $product->setBuyer($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProduct(Product $product): self
+    {
+        if ($this->products->removeElement($product)) {
+            // set the owning side to null (unless already changed)
+            if ($product->getBuyer() === $this) {
+                $product->setBuyer(null);
+            }
+        }
+
+        return $this;
     }
 }
