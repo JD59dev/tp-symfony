@@ -19,6 +19,15 @@ class ProductRepository extends ServiceEntityRepository
         parent::__construct($registry, Product::class);
     }
 
+    public function findAllWithFilters($price) {
+        $qb = $this->createQueryBuilder('r')
+                    ->setParameters([]);
+
+        if (!empty($price)) {
+            $qb->andWhere('r.price < :price')->setParameter('price', $price);
+        }
+    }
+
     public function search($query) {
         $qb = $this->createQueryBuilder('r')
                     ->where('r.name LIKE :query')

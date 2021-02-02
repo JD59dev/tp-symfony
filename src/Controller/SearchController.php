@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Repository\ProductRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -9,12 +10,16 @@ use Symfony\Component\Routing\Annotation\Route;
 class SearchController extends AbstractController
 {
     /**
-     * @Route("/search", name="search")
+     * @Route("api/search/{query}", name="api_search")
      */
-    public function index(): Response
+    public function index($query = '', ProductRepository $repository): Response
     {
-        return $this->render('search/index.html.twig', [
-            'controller_name' => 'SearchController',
+        // Searching for products thanks to the Repository
+        $products = $repository->search($query);
+        // Returning JSON because it's an API
+        return $this->json([
+            'html' => $this->renderView('product/_product.html.twig',
+                ['products' => $products]),
         ]);
     }
 }
