@@ -40,6 +40,10 @@ class ProductsController extends AbstractController
         ]);
     }
 
+
+    /**
+     * @Route("/products/create", name="products_create")
+     */
     public function create(Request $request, SluggerInterface $slugger): Response {
         $product = new Product();
         $form = $this->createForm(ProductType::class, $product);
